@@ -3,5 +3,4 @@ fun main(){
     val dealer:Bot = Bot()
 val game:Game = Game()
     game.startGame(player = player, bot = dealer)
-
 }

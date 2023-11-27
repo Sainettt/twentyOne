@@ -3,10 +3,13 @@ class Player1(var deposit: Int) : Player() {
     override fun turn() : Int {
         var bool = true
         val hit = hit()
+        println()
+        print("Make your turn Hit or Stand or Double: ")
         while (bool) {
-            print("Make your turn: ")
+
             when (readln()) {
                 "Hit" -> {
+                    println()
                     println("Player receives a card: $hit")
                     bool = false
                     return hit
@@ -16,9 +19,13 @@ class Player1(var deposit: Int) : Player() {
                     bool = false
                     return 0
                 }
+                "Double" -> {
+                    println("Player receives a card: $hit")
+                    bool = false
+                    return hit
+                }
                 else -> {
-                    println("Chose: Hit or Stand")
-                    println()
+                    print("Chose: [Hit] [Stand] [Double] : ")
                 }
             }
         }

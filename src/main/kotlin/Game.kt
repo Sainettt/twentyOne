@@ -1,15 +1,20 @@
 class Game {
     var sumPlayer = 0
     var sumBot = 0
-    var winner = false
+    var winner = 0
     val cardsPlayer = mutableListOf<Int>()
     val cardsDealer = mutableListOf<Int>()
 
     fun startGame(player: Player1, bot: Bot) {
 
-        var bet: Int = 0
+        var bet = 0
 
-        while (player.deposit > 0) {
+        while (player.deposit >= 0) {
+
+            if (player.deposit <= 0){
+                println("You LOH proebal vse dengi )))")
+                return
+            }
             println("Your deposit: ${player.deposit}")
             println()
 
@@ -29,8 +34,7 @@ class Game {
                             incorrectValue = true
                         }
                         if (bet > player.deposit) {
-                            println(notEnoughMoney(player))
-                            println()
+                            notEnoughMoney(player)
                             incorrectValue = true
                         }
                     }
@@ -45,11 +49,10 @@ class Game {
             println("_______________")
             println("START GAME")
             println("_______________")
-            var dealerCard = 0
-            var playerCard = 0
+
 
             println("Dealer card - ?")
-            dealerCard = bot.hit()
+            var dealerCard = bot.hit()
             cardsDealer.add(dealerCard)
             sumBot += dealerCard
 
@@ -61,7 +64,7 @@ class Game {
 
 
 
-            playerCard = player.hit()
+            var playerCard = player.hit()
             cardsPlayer.add(playerCard)
             sumPlayer += playerCard
             println("Player card - $playerCard")
@@ -70,12 +73,12 @@ class Game {
             cardsPlayer.add(playerCard)
             sumPlayer += playerCard
             println("Player card - $playerCard")
-            println()
 
             gameState(player, bot)
-            if (winner) {
+
+            if (winner == 1) {
                 player.deposit += bet
-            } else {
+            } else if (winner == 0){
                 player.deposit -= bet
             }
             sumPlayer = 0
@@ -102,11 +105,10 @@ class Game {
 
    fun gameState(player: Player1, bot: Bot){
        var bool = true
-       var playerCard = 0
-       var dealerCard = 0
 
        while (bool){
-           playerCard = player.turn()
+
+           val playerCard = player.turn()
            if (playerCard == 0){
                calculateResult(sumBot,sumPlayer)
                bool = false
@@ -119,7 +121,7 @@ class Game {
            if (!helperGameStateForPlayer(this.sumPlayer)) return
 
 
-           dealerCard = bot.turn(sumBot)
+           val dealerCard = bot.turn(sumBot)
            if (dealerCard == 0) {
               calculateResult(sumBot,sumPlayer)
                bool = false
@@ -132,26 +134,30 @@ class Game {
            if (!helperGameStateForBot(this.sumBot)) return
        }
    }
+
+
     fun calculateResult(sumBot: Int, sumPlayer:Int){
-        if (sumBot>sumPlayer) {
+
+        winner = if (sumBot>sumPlayer) {
             additionalInformationOfGame("Dealer")
-            setWhoWin(false)
-        }
-        else if (sumPlayer>sumBot) {
+            setWhoWin(0)
+        } else if (sumPlayer>sumBot) {
             additionalInformationOfGame("Player")
-            setWhoWin(true)
+            setWhoWin(1)
+        } else {
+            additionalInformationOfGameForDraw()
+            setWhoWin(2)
         }
-        else additionalInformationOfGameForDraw()
     }
     fun helperGameStateForPlayer (sumPlayer: Int) : Boolean{
         if (sumPlayer > 21) {
             additionalInformationOfGame("Dealer")
-            setWhoWin(false)
+            winner = setWhoWin(0)
             return false
         }
         if (sumPlayer == 21) {
             additionalInformationOfGame("Player")
-            setWhoWin(true)
+            winner = setWhoWin(1)
             return false
         }
         return true
@@ -159,21 +165,22 @@ class Game {
     fun helperGameStateForBot (sumBot: Int) : Boolean{
         if (sumBot > 21) {
             additionalInformationOfGame("Player")
-            setWhoWin(true)
+            winner = setWhoWin(1)
             return false
         }
         if (sumBot == 21) {
             additionalInformationOfGame("Dealer")
-            setWhoWin(false)
+            winner = setWhoWin(0)
             return false
         }
         return true
     }
-    fun setWhoWin(winner:Boolean){
-        this.winner = winner
+    fun setWhoWin(winner:Int):Int{
+        return winner
     }
 
     fun additionalInformationOfGame(player: String){
+        println()
         val res = """
             ___________________________________
              Dealer cards: ${cardsDealer} hand: $sumBot
@@ -186,6 +193,7 @@ class Game {
     }
 
     fun additionalInformationOfGameForDraw(){
+        println()
         val res = """
             ___________________________________
              Dealer cards: ${cardsDealer} hand: $sumBot
@@ -196,16 +204,17 @@ class Game {
         println(res)
         println()
     }
-    fun notEnoughMoney(player: Player1):String{
+    fun notEnoughMoney(player: Player1){
         val info = """
              You don't have enough money!
              Make your bet smaller
              Deposit is ${player.deposit}
         """.trimIndent()
-        return info
+        println(info)
+        println()
     }
     fun questionOfContinue(){
-        println("Do you wanna continue?")
+        println("Do you want to continue?")
         print("Input [Y] - yes | [N] - no : ")
     }
 }
